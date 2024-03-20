@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'figure.dart';
+import 'figures/figure.dart';
 
 var lettersMap = List.generate(26, (index) => String.fromCharCode(97+index)).asMap();
 class Board{
@@ -29,14 +29,19 @@ class Board{
     return points.contains(Point.fromCoord(x, y));
 }
 
-  Figure? getFigureAt(Point? point){
+  Figure? enemyFigureAt(Point? point){
     if(point==null)return null;
     return figures.where((element) => element.point==point).firstOrNull;
   }
 
+  Point? emptyPoint(Point? point){
+    if(point==null)return null;
+    return figures.where((element) => element.point==point).firstOrNull==null?point:null;
+  }
+
   move(Figure figure, Point point){
     enPassant=null;
-    var target=getFigureAt(point);
+    var target=enemyFigureAt(point);
     if(target==null) {
       figure.move(this, point);
     }else{
@@ -46,7 +51,7 @@ class Board{
 
   cellTap(int x, int y) {
     var point = Point.fromCoord(x, y);
-    var figure = getFigureAt(point);
+    var figure = enemyFigureAt(point);
     if(selectedFigure?.possibleMoves(this).contains(point)==true || selectedFigure?.possibleAttacks(this).contains(point)==true){
       debugPrint("move");
       move(selectedFigure!, point);
@@ -79,14 +84,6 @@ class Board{
     });
   }
 
-  static Board classicChessBoard(){
-    var board = Board(lettersMap);
-    var whitePawn = Figure.whitePawn(Point("a2"));
-    var blackPawn = Figure.blackPawn(Point("b4"));
-    var blackPawn2 = Figure.blackPawn(Point("b5"));
-    board.figures=[whitePawn,blackPawn, blackPawn2];
-    return board;
-  }
 }
 
 class Point{

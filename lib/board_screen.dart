@@ -1,10 +1,13 @@
+import 'dart:math';
+
 import 'package:chess/components/main_button.dart';
 import 'package:chess/models/board.dart';
 import 'package:chess/models/boards.dart';
-import 'package:chess/models/figure.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'models/figures/figure.dart';
 
 class BoardScreen extends StatefulWidget {
   final Board? board;
@@ -45,7 +48,7 @@ class _BoardScreenState extends State<BoardScreen> {
                 }
                 isBlack = !isBlack;
                 var point = Point.fromCoord(x, y);
-                var figure = board.getFigureAt(point);
+                var figure = board.enemyFigureAt(point);
                 return GestureDetector(
                   onTap: () {
                     debugPrint("x: $x, y: $y");
@@ -79,7 +82,7 @@ class _BoardScreenState extends State<BoardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    size = (MediaQuery.of(context).size.width - 40) / 8;
+    size = (min(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height)) / 8 - 40;
     return Container(
       color: Colors.grey,
       alignment: Alignment.center,

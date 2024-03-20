@@ -1,5 +1,10 @@
+import 'figures/figure.dart';
+
 class Player{
   int id;
 
-  Player(this.id);
+  List<Figure> figures;
+
+  Player(this.id, this.figures);
+
 }

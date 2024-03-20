@@ -1,33 +1,8 @@
+
 import 'package:chess/models/board.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 
-abstract class Figure {
-  abstract String image;
-  abstract Point point;
-  abstract double rewardExp;
-  double currentExp = 0;
-
-  List<Point> possibleMoves(Board board);
-
-  List<Point> possibleAttacks(Board board);
-
-  move(Board board, Point point){
-    this.point = point;
-  }
-
-  eat(Board board, Point point, Figure target) {
-    currentExp+=target.rewardExp;
-    board.figures.remove(target);
-    move(board, point);
-  }
-
-  @override
-  String toString()=> "$runtimeType($point)";
-
-  static Figure whitePawn(Point point) => WhitePawn(point);
-  static Figure blackPawn(Point point) => BlackPawn(point);
-
-}
+import 'figure.dart';
 
 abstract class Pawn extends Figure{
   int moveNumber = 0;
@@ -39,21 +14,21 @@ abstract class Pawn extends Figure{
   List<Point> possibleAttacks(Board board) {
     Point? enPassantLeft;
     Point? enPassantRight;
-    var left = board.getFigureAt(point.offset(board, x:-1));
+    var left = board.enemyFigureAt(point.offset(board, x:-1));
     if(left is Pawn){
-      if(left.moveNumber==1 && board.enPassant== left){
-        enPassantLeft=left.point;
+      if(board.enPassant== left){
+        enPassantLeft=point.offset(board, x: -1, y:moveDirection);
       }
     }
-    var right = board.getFigureAt(point.offset(board, x:1));
+    var right = board.enemyFigureAt(point.offset(board, x:1));
     if(right is Pawn){
       if(board.enPassant== right){
-        enPassantLeft=right.point;
+        enPassantRight=point.offset(board, x: 1, y:moveDirection);
       }
     }
     var list = [
-      board.getFigureAt(point.offset(board, x: -1, y: moveDirection))?.point,
-      board.getFigureAt(point.offset(board, x: 1, y: moveDirection))?.point,
+      board.enemyFigureAt(point.offset(board, x: -1, y: moveDirection))?.point,
+      board.enemyFigureAt(point.offset(board, x: 1, y: moveDirection))?.point,
       enPassantRight, enPassantLeft
     ];
     return list.nonNulls.toList();
@@ -63,11 +38,12 @@ abstract class Pawn extends Figure{
   List<Point> possibleMoves(Board board) {
     var list = List<Point>.empty(growable: true);
     var point1 = point.offset(board,y:moveDirection);
-    if(point1!=null && board.getFigureAt(point1)==null){
+    if(point1!=null && board.enemyFigureAt(point1)==null){
       list.add(point1);
       var point2 = point.offset(board,y:moveDirection*2);
-      if(point2!=null && board.getFigureAt(point2)==null){
+      if(moveNumber==0 && point2!=null && board.enemyFigureAt(point2)==null){
         list.add(point2);
+        debugPrint("enPassant");
       }
     }
     debugPrint("possible moves: $list");
