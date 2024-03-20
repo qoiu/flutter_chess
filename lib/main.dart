@@ -79,8 +79,8 @@ class _MyHomePageState extends State<MyHomePage> {
     var blackPawn = Figure.blackPawn(Point("b4"));
     var blackPawn2 = Figure.blackPawn(Point("b5"));
     board.figures=[whitePawn,blackPawn, blackPawn2];
-    return Scaffold(
-      body: BoardScreen(board),
+    return const Scaffold(
+      body: BoardScreen(),
     );
   }
 }
