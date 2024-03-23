@@ -1,21 +1,21 @@
 import 'package:chess/models/board.dart';
-import 'package:chess/models/figures/bishop.dart';
-import 'package:chess/models/figures/knight.dart';
-import 'package:chess/models/figures/queen.dart';
-import 'package:chess/models/figures/rook.dart';
+import 'package:chess/models/pieces/bishop.dart';
+import 'package:chess/models/pieces/knight.dart';
+import 'package:chess/models/pieces/queen.dart';
+import 'package:chess/models/pieces/rook.dart';
 
-import 'figures/figure.dart';
-import 'figures/king.dart';
+import 'pieces/king.dart';
+import 'pieces/piece.dart';
 
 abstract class Boards {
   static Board get classicChessBoard {
     var board = Board(lettersMap);
-    board.figures = classicWhiteFigures+classicBlackFigures;
+    board.currentPosition.pieces = classicWhitePieces+classicBlackPieces;
     return board;
   }
 
-  static List<Figure> get classicWhiteFigures {
-    List<Figure> list = [
+  static List<Piece> get classicWhitePieces {
+    List<Piece> list = [
       Rook.white(Point("a1")),
       Knight.white(Point("b1")),
       Bishop.white(Point("c1")),
@@ -26,12 +26,12 @@ abstract class Boards {
       Rook.white(Point("h1")),
     ];
     list.addAll(List.generate(
-        8, (index) => Figures.whitePawn(Point.fromCoord(index, 2))));
+        8, (index) => Pieces.whitePawn(Point.fromCoord(index, 2))));
     return list;
   }
 
-  static List<Figure> get classicBlackFigures {
-    List<Figure> list = [
+  static List<Piece> get classicBlackPieces {
+    List<Piece> list = [
       Rook.black(Point("a8")),
       Knight.black(Point("b8")),
       Bishop.black(Point("c8")),
@@ -42,7 +42,7 @@ abstract class Boards {
       Rook.black(Point("h8")),
     ];
     list.addAll(List.generate(
-        8, (index) => Figures.blackPawn(Point.fromCoord(index, 7))));
+        8, (index) => Pieces.blackPawn(Point.fromCoord(index, 7))));
     return list;
   }
 }

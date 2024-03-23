@@ -1,4 +1,5 @@
 import 'package:chess/models/board.dart';
+import 'package:chess/models/pieces/piece.dart';
 
 abstract class MoveUtils{
 
@@ -13,13 +14,13 @@ abstract class MoveUtils{
     }
   }
 
-  static Point? checkLineAttack(Board board, Point point, int ofsX, int ofsY){
+  static Point? checkLineAttack(Piece piece, Board board, Point point, int ofsX, int ofsY){
     var i =0;
     while(true){
       i++;
       var testPoint = point.offset(board, x: ofsX*i, y: ofsY*i);
       if(testPoint==null)return null;
-      if(board.enemyFigureAt(testPoint)!=null)return testPoint;
+      if(board.enemyPieceAt(piece, testPoint)!=null)return testPoint;
     }
   }
 }

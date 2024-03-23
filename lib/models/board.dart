@@ -1,24 +1,36 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:core';
+
+import 'package:chess/models/board_position.dart';
+import 'package:chess/models/player.dart';
 import 'package:flutter/material.dart';
 
-import 'figures/figure.dart';
+import 'pieces/piece.dart';
 
 var lettersMap = List.generate(26, (index) => String.fromCharCode(97+index)).asMap();
 class Board{
   Map<int,String> letterMap;
   late List<Point> points;
-  List<Figure> figures=[];
-  Figure? enPassant;
-  Figure? selectedFigure;
+  Piece? selectedPiece;
   late Map<Point,OverlayState> overlay;
+  Map<PieceType, List<Point>> transformationPoints={};
+  List<BoardPosition> history=[];
+  late BoardPosition currentPosition;
 
   Board(this.letterMap){
+    currentPosition = BoardPosition(this, [Player.white(),Player.black()]);
     points = List.generate(64, (index){
       var x = index~/8;
       return Point("${letterMap[x]}${index % 8 + 1}");
     } );
     clearOverlay();
+    initTransformation();
+  }
+
+  initTransformation(){
+    transformationPoints={
+      PieceType.pawnWhite:List.generate(8, (index) => Point.fromCoord(index, 8)),
+      PieceType.pawnBlack:List.generate(8, (index) => Point.fromCoord(index, 1))
+    };
   }
 
   void clearOverlay() {
@@ -29,38 +41,41 @@ class Board{
     return points.contains(Point.fromCoord(x, y));
 }
 
-  Figure? enemyFigureAt(Point? point){
+
+  Piece? pieceAt(Point? point){
     if(point==null)return null;
-    return figures.where((element) => element.point==point).firstOrNull;
+    return currentPosition.pieces.where((element) => element.point==point).firstOrNull;
   }
+
+  Piece? enemyPieceAt(Piece piece, Point? point){
+    if(point==null)return null;
+    return getEnemyPiece(piece, currentPosition.pieces.where((element) => element.point==point).firstOrNull);
+  }
+
+  Piece? getEnemyPiece(Piece p1, Piece? p2)=>p1.owner!=p2?.owner?p2:null;
 
   Point? emptyPoint(Point? point){
     if(point==null)return null;
-    return figures.where((element) => element.point==point).firstOrNull==null?point:null;
+    return currentPosition.pieces.where((element) => element.point==point).firstOrNull==null?point:null;
   }
 
-  move(Figure figure, Point point){
-    enPassant=null;
-    var target=enemyFigureAt(point);
-    if(target==null) {
-      figure.move(this, point);
-    }else{
-      figure.eat(this, point, target);
-    }
+  move(Piece piece, Point point){
+    history.add(currentPosition);
+    currentPosition = currentPosition.move(piece, point);
   }
 
   cellTap(int x, int y) {
     var point = Point.fromCoord(x, y);
-    var figure = enemyFigureAt(point);
-    if(selectedFigure?.possibleMoves(this).contains(point)==true || selectedFigure?.possibleAttacks(this).contains(point)==true){
+    var piece = pieceAt(point);
+    if(selectedPiece?.possibleMoves(currentPosition).contains(point)==true || selectedPiece?.possibleAttacks(currentPosition).contains(point)==true){
       debugPrint("move");
-      move(selectedFigure!, point);
-    }else if(figure!=null){
-        selectedFigure = figure;
+      move(selectedPiece!, point);
+    }else if(piece!=null){
+        selectedPiece = piece;
     }else{
-      selectedFigure = null;
+      selectedPiece = null;
     }
-    calculateOverlay(selectedFigure);
+    calculateOverlay(selectedPiece);
   }
 
   Color getOverlayColor(Point point){
@@ -72,14 +87,14 @@ class Board{
     }
   }
 
-  calculateOverlay(Figure? figure){
+  calculateOverlay(Piece? piece){
     clearOverlay();
-    if(figure==null)return;
-    overlay[figure.point]=OverlayState.selected;
-    figure.possibleMoves(this).forEach((element) {
+    if(piece==null)return;
+    overlay[piece.point]=OverlayState.selected;
+    piece.possibleMoves(currentPosition).forEach((element) {
       overlay.update(element, (value) => OverlayState.move);
     });
-    figure.possibleAttacks(this).forEach((element) {
+    piece.possibleAttacks(currentPosition).forEach((element) {
       overlay.update(element, (value) => OverlayState.attack);
     });
   }
@@ -99,8 +114,9 @@ class Point{
 
 
   @override
-  String toString() => "$pointName($x, $y)";
+  String toString() => pointName;
 
+  String get fullInfo => "$pointName($x, $y)";
 
   @override
   bool operator ==(Object other) =>

@@ -3,11 +3,10 @@ import 'dart:math';
 import 'package:chess/components/main_button.dart';
 import 'package:chess/models/board.dart';
 import 'package:chess/models/boards.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'models/figures/figure.dart';
+import 'models/pieces/piece.dart';
 
 class BoardScreen extends StatefulWidget {
   final Board? board;
@@ -20,12 +19,12 @@ class BoardScreen extends StatefulWidget {
 
 class _BoardScreenState extends State<BoardScreen> {
   var size = 40.0;
-  Figure? selectedFigure;
+  Piece? selectedPiece;
   late Board board;
+  bool autoplay = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if (widget.board != null) {
       board = widget.board!;
@@ -48,7 +47,7 @@ class _BoardScreenState extends State<BoardScreen> {
                 }
                 isBlack = !isBlack;
                 var point = Point.fromCoord(x, y);
-                var figure = board.enemyFigureAt(point);
+                var piece = board.pieceAt(point);
                 return GestureDetector(
                   onTap: () {
                     debugPrint("x: $x, y: $y");
@@ -67,8 +66,8 @@ class _BoardScreenState extends State<BoardScreen> {
                           height: size,
                           color: board.getOverlayColor(point),
                           alignment: Alignment.center,
-                          child: figure != null
-                              ? SvgPicture.asset(figure.image,
+                          child: piece != null
+                              ? SvgPicture.asset(piece.image,
                                   width: size * 0.7, height: size * 0.7)
                               : null)
                     ],
@@ -92,10 +91,16 @@ class _BoardScreenState extends State<BoardScreen> {
         children: [
           boardItem(),
           const SizedBox(height: 10),
-          MainButton("restart", (){
-            board = Boards.classicChessBoard;
-            setState(() {});
-          })
+          Row(
+            children: [
+              MainButton("restart", (){
+                board = Boards.classicChessBoard;
+                setState(() {});
+              }),
+              MainButton("autoPlay", (){
+              }),
+            ],
+          )
         ],
       ),
     );
