@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:chess/components/main_button.dart';
 import 'package:chess/models/board.dart';
 import 'package:chess/models/boards.dart';
+import 'package:chess/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -20,21 +21,38 @@ class BoardScreen extends StatefulWidget {
 class _BoardScreenState extends State<BoardScreen> {
   var size = 40.0;
   Piece? selectedPiece;
-  late Board board;
+  Board? _board;
   bool autoplay = false;
 
   @override
   void initState() {
     super.initState();
     if (widget.board != null) {
-      board = widget.board!;
+      _board = widget.board!;
     } else {
-      board = Boards.classicChessBoard;
+      _board = Boards.classicChessBoard;
+    }
+    setState(() {});
+  }
+
+  startAutoplay()async{
+    if(_board==null)return;
+    autoplay=true;
+    debugPrint("autoplayStarted");
+    while(autoplay){
+      if(!_board!.currentPosition.currentPlayer.randomMove(_board!)){
+        debugPrint("autoplayFinished");
+        autoplay=false;
+      }
+      setState(() {});
+      await Future.delayed(const Duration(milliseconds: 500));
     }
   }
 
-  Widget boardItem() {
+  Widget boardItem(Board board) {
     var isBlack = false;
+    debugPrint("protected screen: ${board.currentPosition.protected.where((element) => element.player.id==1).firstOrNull}");
+    debugPrint("protected screen: ${board.currentPosition.protected.where((element) => element.player.id==1).firstOrNull?.protection}");
     return Column(
       children: [
         for (var y = 8; y > 0; --y) ...{
@@ -48,6 +66,8 @@ class _BoardScreenState extends State<BoardScreen> {
                 isBlack = !isBlack;
                 var point = Point.fromCoord(x, y);
                 var piece = board.pieceAt(point);
+                var protectionBlack = board.currentPosition.protected.where((element) => element.player.id==1).firstOrNull?.protection.get(point);
+                var protectionWhite = board.currentPosition.protected.where((element) => element.player.id==0).firstOrNull?.protection.get(point);
                 return GestureDetector(
                   onTap: () {
                     debugPrint("x: $x, y: $y");
@@ -69,7 +89,25 @@ class _BoardScreenState extends State<BoardScreen> {
                           child: piece != null
                               ? SvgPicture.asset(piece.image,
                                   width: size * 0.7, height: size * 0.7)
-                              : null)
+                              : null),
+                      Container(
+                        width: size,
+                        height: size,
+                        padding: const EdgeInsets.all(5),
+                        alignment: Alignment.topRight,
+                        child: Text(
+                            (protectionBlack??0).toString()
+                        ),
+                      ),
+                      Container(
+                        width: size,
+                        height: size,
+                        padding: const EdgeInsets.all(5),
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                            (protectionWhite??0).toString()
+                        ),
+                      )
                     ],
                   ),
                 );
@@ -89,16 +127,16 @@ class _BoardScreenState extends State<BoardScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          boardItem(),
+          _board==null?const CircularProgressIndicator():boardItem(_board!),
           const SizedBox(height: 10),
           Row(
             children: [
               MainButton("restart", (){
-                board = Boards.classicChessBoard;
+                autoplay=false;
+                _board = Boards.classicChessBoard;
                 setState(() {});
               }),
-              MainButton("autoPlay", (){
-              }),
+              MainButton("autoPlay", startAutoplay),
             ],
           )
         ],

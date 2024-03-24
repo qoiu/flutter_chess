@@ -10,7 +10,7 @@ import 'pieces/piece.dart';
 abstract class Boards {
   static Board get classicChessBoard {
     var board = Board(lettersMap);
-    board.currentPosition.pieces = classicWhitePieces+classicBlackPieces;
+    // board.currentPosition = BoardPosition(board,[Player.white(),Player.black()]);
     return board;
   }
 

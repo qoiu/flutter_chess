@@ -24,22 +24,26 @@ class Rook extends Piece {
   @override
   List<Point> possibleMoves(BoardPosition boardPosition) {
     List<Point> list = List.empty(growable: true);
-    list.addAll(MoveUtils.checkLine(boardPosition.board, point, 0, 1));
-    list.addAll(MoveUtils.checkLine(boardPosition.board, point, 0, -1));
-    list.addAll(MoveUtils.checkLine(boardPosition.board, point, -1, 0));
-    list.addAll(MoveUtils.checkLine(boardPosition.board, point, 1, 0));
+    list.addAll(MoveUtils.checkLine(boardPosition.board, point, 0, 1,[StopAction.ifEmpty]));
+    list.addAll(MoveUtils.checkLine(boardPosition.board, point, 0, -1,[StopAction.ifEmpty]));
+    list.addAll(MoveUtils.checkLine(boardPosition.board, point, -1, 0,[StopAction.ifEmpty]));
+    list.addAll(MoveUtils.checkLine(boardPosition.board, point, 1, 0,[StopAction.ifEmpty]));
     return list;
   }
 
   @override
   List<Point> possibleAttacks(BoardPosition boardPosition) =>[
-      MoveUtils.checkLineAttack(this, boardPosition.board, point, 0, 1),
-      MoveUtils.checkLineAttack(this, boardPosition.board, point, 0, -1),
-      MoveUtils.checkLineAttack(this, boardPosition.board, point, -1, 0),
-      MoveUtils.checkLineAttack(this, boardPosition.board, point, 1, 0),
+      MoveUtils.checkLineAttack(this, boardPosition.board, 0, 1),
+      MoveUtils.checkLineAttack(this, boardPosition.board, 0, -1),
+      MoveUtils.checkLineAttack(this, boardPosition.board, -1, 0),
+      MoveUtils.checkLineAttack(this, boardPosition.board, 1, 0),
     ].nonNulls.toList();
+
+
 
   @override
   Piece copy() => Rook(point,image);
 
+  @override
+  List<Point> protectedFields(BoardPosition boardPosition)=>possibleAttacks(boardPosition)+possibleMoves(boardPosition);
 }

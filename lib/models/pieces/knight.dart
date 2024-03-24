@@ -44,7 +44,12 @@ class Knight extends Piece{
         .toList();
   }
 
+
+
   @override
   Piece copy() => Knight(point,image);
+
+  @override
+  List<Point> protectedFields(BoardPosition boardPosition) => _moves(boardPosition);
 
 }

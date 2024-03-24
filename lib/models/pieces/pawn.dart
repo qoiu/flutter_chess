@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'piece.dart';
 
 abstract class Pawn extends Piece {
-  int moveNumber = 0;
   int moveDirection = 1;
   @override
   double rewardExp = 1;
@@ -36,6 +35,12 @@ abstract class Pawn extends Piece {
     return list.nonNulls.toList();
   }
 
+  @override
+  List<Point> protectedFields(BoardPosition boardPosition) =>[
+    point.offset(boardPosition.board, x:1, y: moveDirection),
+    point.offset(boardPosition.board, x:-1, y: moveDirection),
+  ].nonNulls.toList();
+
   Piece? _enPassantPiece(BoardPosition boardPosition, int offset) {
     var piece = boardPosition.board.enemyPieceAt(this, point.offset(boardPosition.board, x: offset));
     if (boardPosition.enPassant == piece && piece!=null) {
@@ -51,21 +56,13 @@ abstract class Pawn extends Piece {
     if (point1 != null && boardPosition.board.enemyPieceAt(this, point1) == null) {
       list.add(point1);
       var point2 = point.offset(boardPosition.board, y: moveDirection * 2);
-      if (moveNumber == 0 &&
+      if (!moved &&
           point2 != null &&
           boardPosition.board.enemyPieceAt(this, point2) == null) {
         list.add(point2);
-        debugPrint("enPassant");
       }
     }
-    debugPrint("possible moves: $list");
     return list.nonNulls.toList();
-  }
-
-  @override
-  eat(BoardPosition board, Point point, Piece target) {
-    debugPrint("this.point.x ${this.point.x}!= point.x ${this.point.x}");
-    return super.eat(board, point, target);
   }
 
   @override
@@ -83,7 +80,6 @@ abstract class Pawn extends Piece {
         return;
       }
     }
-    moveNumber += 1;
     if ((point.y - this.point.y).abs() > 1) {
       board.enPassant = this;
     }

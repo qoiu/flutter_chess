@@ -1,3 +1,0 @@
-
-
-int piecesLastId=0;

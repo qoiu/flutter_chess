@@ -6,4 +6,7 @@ class ActionMove{
   final Point point;
 
   ActionMove(this.piece, this.point);
+
+  @override
+  String toString() => "$piece -> $point";
 }
