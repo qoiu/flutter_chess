@@ -9,19 +9,18 @@ class ProtectedPoints{
   BoardPosition  boardPosition;
 
   ProtectedPoints(this.player, this.boardPosition){
-   initProtectedStrength();
-   debugPrint("protected $player {$boardPosition}");
+   _initProtectedStrength();
   }
 
   Map<Point,int> protection={};
 
-  initProtectedStrength(){
+  _initProtectedStrength(){
     protection = { for (var e in boardPosition.board.points) e : 0 };
-    debugPrint("protection: $protection");
+    // debugPrint("protection: $protection");
     player.pieces.expand((element) => element.protectedFields(boardPosition)).forEach((point) {
       debugPrint("${protection[point]}");
       protection.incrementIfExist(point);
     });
-    debugPrint("protection: $protection");
+    // debugPrint("protection: $protection");
   }
 }

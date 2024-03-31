@@ -10,8 +10,7 @@ abstract class MoveUtils {
     while (true) {
       i++;
       debugPrint("checkLine $i");
-      var testPoint =
-          board.emptyPoint(point.offset(board, x: ofsX * i, y: ofsY * i));
+      var testPoint = point.offset(board, x: ofsX * i, y: ofsY * i);
       if (stopActions
           .map((e) => e.stopAction(board, testPoint))
           .any((element) => element)) {

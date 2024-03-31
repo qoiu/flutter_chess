@@ -45,6 +45,27 @@ class Queen extends Piece {
     return list;
   }
 
+  List<Point> possibleProtection(BoardPosition boardPosition) {
+    List<Point> list = List.empty(growable: true);
+    list.addAll(MoveUtils.checkLine(
+        boardPosition.board, point, 0, 1, [StopAction.ifEmpty], true));
+    list.addAll(MoveUtils.checkLine(
+        boardPosition.board, point, 0, -1, [StopAction.ifEmpty], true));
+    list.addAll(MoveUtils.checkLine(
+        boardPosition.board, point, -1, 0, [StopAction.ifEmpty], true));
+    list.addAll(MoveUtils.checkLine(
+        boardPosition.board, point, 1, 0, [StopAction.ifEmpty], true));
+    list.addAll(MoveUtils.checkLine(
+        boardPosition.board, point, 1, 1, [StopAction.ifEmpty], true));
+    list.addAll(MoveUtils.checkLine(
+        boardPosition.board, point, 1, -1, [StopAction.ifEmpty], true));
+    list.addAll(MoveUtils.checkLine(
+        boardPosition.board, point, -1, -1, [StopAction.ifEmpty], true));
+    list.addAll(MoveUtils.checkLine(
+        boardPosition.board, point, -1, 1, [StopAction.ifEmpty], true));
+    return list;
+  }
+
   @override
   List<Point> possibleAttacks(BoardPosition boardPosition) => [
         MoveUtils.checkLineAttack(this, boardPosition.board, 0, 1),
@@ -61,5 +82,5 @@ class Queen extends Piece {
   Piece copy() => Queen(point, image);
 
   @override
-  List<Point> protectedFields(BoardPosition boardPosition)=>possibleAttacks(boardPosition)+possibleMoves(boardPosition);
+  List<Point> protectedFields(BoardPosition boardPosition)=>possibleProtection(boardPosition);
 }

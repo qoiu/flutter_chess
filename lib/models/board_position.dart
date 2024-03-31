@@ -43,29 +43,30 @@ class BoardPosition{
 
   BoardPosition copy()=>BoardPosition(board, players.map((e) => e.copy()).toList(), currentPlayer: nextPlayer());
 
-  BoardPosition move(Piece piece, Point point){
-    var newBoardPosition = copy();
-    var selectedPiece = newBoardPosition.board.pieceAt(piece.point, newBoardPosition);
-    if(selectedPiece==null){
-      throw Exception("copy error");
+    BoardPosition move(Piece piece, Point point){
+      var newBoardPosition = copy();
+      var selectedPiece = newBoardPosition.board.pieceAt(piece.point, newBoardPosition);
+      if(selectedPiece==null){
+        throw Exception("copy error");
+      }
+      var enPassantOld = enPassant;
+      var target=newBoardPosition.board.pieceAt(point);
+      if(target==null) {
+        selectedPiece.move(newBoardPosition, point);
+      }else{
+        selectedPiece.eat(newBoardPosition, point, target);
+      }
+      if(enPassantOld==enPassant){
+        enPassant=null;
+      }
+      nextPlayer();
+      newBoardPosition.init();
+      return newBoardPosition;
     }
-    var enPassantOld = enPassant;
-    var target=newBoardPosition.board.pieceAt(point);
-    if(target==null) {
-      selectedPiece.move(newBoardPosition, point);
-    }else{
-      selectedPiece.eat(newBoardPosition, point, target);
-    }
-    if(enPassantOld==enPassant){
-      enPassant=null;
-    }
-    nextPlayer();
-    return newBoardPosition;
-  }
 
-  @override
-  String toString() {
-    var pl = players.map((pl) => "${pl.id}-${pl.pieces.map((piece) => piece.toStringNameForSave()).join(",")}").join("!");
-    return "$currentPlayerId|$pl";
+    @override
+    String toString() {
+      var pl = players.map((pl) => "${pl.id}-${pl.pieces.map((piece) => piece.toStringNameForSave()).join(",")}").join("!");
+      return "$currentPlayerId|$pl";
+    }
   }
-}
